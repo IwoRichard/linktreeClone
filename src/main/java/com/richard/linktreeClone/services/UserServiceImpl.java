@@ -1,10 +1,10 @@
 package com.richard.linktreeClone.services;
 
-import com.richard.linktreeClone.dtos.RegisterDto;
 import com.richard.linktreeClone.dtos.UpdateProfileDto;
 import com.richard.linktreeClone.entities.CustomLink;
 import com.richard.linktreeClone.entities.SocialLink;
 import com.richard.linktreeClone.entities.User;
+import com.richard.linktreeClone.exceptions.ResourceNotFoundException;
 import com.richard.linktreeClone.repositories.CustomLinkRepository;
 import com.richard.linktreeClone.repositories.SocialLinkRepository;
 import com.richard.linktreeClone.repositories.UserRepository;
@@ -21,26 +21,22 @@ public class UserServiceImpl implements UserService {
     private final CustomLinkRepository customLinkRepository;
 
     @Override
-    public User registerUser(RegisterDto register) {
-        if (userRepository.findByUsername(register.getUsername()).isPresent()){
-            throw new RuntimeException("username already exists");
-        }
-        if (userRepository.findByEmail(register.getEmail()).isPresent()){
-            throw new RuntimeException("email already exists");
-        }
-        User user = User.builder()
-                .username(register.getUsername())
-                .email(register.getEmail())
-                .password(register.getPassword())
-                .build();
-
-        userRepository.save(user);
-        return user;
+    public User findById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+                () -> new ResourceNotFoundException("User with ID - " + userId + " not found"));
     }
 
     @Override
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(
+                () -> new ResourceNotFoundException("User with username - " + username + " not found")
+        );
+    }
+
+
+    @Override
     public User updateProfile(Long userId, UpdateProfileDto updateProfileDto) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = findById(userId);
         if (user != null){
             user.setProfileBio(updateProfileDto.getProfileBio());
             user.setProfileTitle(updateProfileDto.getProfileTitle());
@@ -51,7 +47,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User updateSocialLink(Long userId, SocialLink socialLink) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = findById(userId);
         if (user != null){
             SocialLink userSocialLink = user.getSocialLink();
             if (userSocialLink != null){
@@ -70,7 +66,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public CustomLink addCustomLink(Long userId, CustomLink customLink) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = findById(userId);
         if (user != null){
             customLink.setUser(user);
             user.getCustomLinks().add(customLink);
@@ -80,10 +76,22 @@ public class UserServiceImpl implements UserService {
         return customLink;
     }
 
-    /* TODO - Delete custom link*/
-    /* TODO - Exceptions*/
-    /* TODO - Validations*/
-    /* TODO - Custom link to return user*/
-    /* TODO - Security*/
+    @Override
+    public String deleteCustomLink(Long userId, Long customLinkId) {
+        User user = findById(userId);
+        if (user != null){
+            CustomLink customLink = customLinkRepository.findById(customLinkId).orElseThrow(
+                    () -> new ResourceNotFoundException("custom link with ID - " + customLinkId + " not found"));
+
+            if (customLink != null){
+                if (customLink.getUser().equals(user)){
+                    user.getCustomLinks().remove(customLink);
+                    customLinkRepository.delete(customLink);
+                    userRepository.save(user);
+                }
+            }
+        }
+        return "Deleted Successfully";
+    }
 
 }

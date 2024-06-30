@@ -6,7 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
@@ -26,6 +28,13 @@ public class User {
 
     @JsonIgnore
     private String password;
+
+    private boolean isEnabled;
+
+    @JsonIgnore
+    @Temporal(TemporalType.TIMESTAMP)
+    @CreatedDate
+    private LocalDateTime createdDate;
 
     private String profileTitle;
     private String profileBio;

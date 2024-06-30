@@ -1,6 +1,5 @@
 package com.richard.linktreeClone.controllers;
 
-import com.richard.linktreeClone.dtos.RegisterDto;
 import com.richard.linktreeClone.dtos.UpdateProfileDto;
 import com.richard.linktreeClone.entities.CustomLink;
 import com.richard.linktreeClone.entities.SocialLink;
@@ -18,27 +17,47 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody RegisterDto registerDto){
-        User user = userService.registerUser(registerDto);
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
+    @GetMapping("/{userId}")
+    public ResponseEntity<User> findById(@PathVariable Long userId){
+        User user = userService.findById(userId);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @PutMapping("/updateprofile/{id}")
-    public ResponseEntity<User> updateProfile(@PathVariable Long id, @RequestBody UpdateProfileDto updateProfileDto){
-        User user = userService.updateProfile(id, updateProfileDto);
+    @GetMapping
+    public ResponseEntity<User> findByUsername(@RequestParam(name = "username") String username){
+        User user = userService.findByUsername(username);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    @PutMapping("/updateprofile/{userId}")
+    public ResponseEntity<User> updateProfile(
+            @PathVariable Long userId, @RequestBody UpdateProfileDto updateProfileDto){
+
+        User user = userService.updateProfile(userId, updateProfileDto);
         return new ResponseEntity<>(user, HttpStatus.ACCEPTED);
     }
 
-    @PutMapping("/updatesocial/{id}")
-    public ResponseEntity<User> updateSocial(@PathVariable Long id, @RequestBody SocialLink socialLink){
-        User user = userService.updateSocialLink(id, socialLink);
+    @PutMapping("/updatesocial/{userId}")
+    public ResponseEntity<User> updateSocial(
+            @PathVariable Long userId, @RequestBody SocialLink socialLink){
+
+        User user = userService.updateSocialLink(userId, socialLink);
         return new ResponseEntity<>(user, HttpStatus.ACCEPTED);
     }
 
-    @PostMapping("/addcustomlink/{id}")
-    public ResponseEntity<CustomLink> registerUser(@PathVariable Long id, @RequestBody CustomLink customLink){
-        CustomLink link = userService.addCustomLink(id, customLink);
+    @PostMapping("/addcustomlink/{userId}")
+    public ResponseEntity<CustomLink> addCustomLink(
+            @PathVariable Long userId, @RequestBody CustomLink customLink){
+
+        CustomLink link = userService.addCustomLink(userId, customLink);
         return new ResponseEntity<>(link, HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("{userId}/deletecustomlink/{customLinkId}")
+    public ResponseEntity<String> deleteCustomLink(
+            @PathVariable Long userId, @PathVariable Long customLinkId){
+
+        String link = userService.deleteCustomLink(userId, customLinkId);
+        return new ResponseEntity<>(link, HttpStatus.OK);
     }
 }
