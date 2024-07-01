@@ -12,6 +12,6 @@ public class LinktreeCloneApplication {
 		SpringApplication.run(LinktreeCloneApplication.class, args);
 	}
 
-	/* TODO - Security, include change password*/
 	/* TODO - Open api documentation*/
+	/* TODO - git ignore*/
 }

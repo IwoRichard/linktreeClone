@@ -1,6 +1,7 @@
 package com.richard.linktreeClone.services.interfaces;
 
 
+import com.richard.linktreeClone.dtos.ChangePasswordDto;
 import com.richard.linktreeClone.dtos.UpdateProfileDto;
 import com.richard.linktreeClone.entities.CustomLink;
 import com.richard.linktreeClone.entities.SocialLink;
@@ -17,5 +18,8 @@ public interface UserService {
     String deleteCustomLink(Long userId, Long customLinkId);
 
     User findById(Long userId);
+
     User findByUsername(String username);
+
+    void changePassword(ChangePasswordDto changePasswordDto);
 }

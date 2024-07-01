@@ -1,5 +1,6 @@
 package com.richard.linktreeClone.services;
 
+import com.richard.linktreeClone.dtos.ChangePasswordDto;
 import com.richard.linktreeClone.dtos.UpdateProfileDto;
 import com.richard.linktreeClone.entities.CustomLink;
 import com.richard.linktreeClone.entities.SocialLink;
@@ -10,6 +11,7 @@ import com.richard.linktreeClone.repositories.SocialLinkRepository;
 import com.richard.linktreeClone.repositories.UserRepository;
 import com.richard.linktreeClone.services.interfaces.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,6 +21,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final SocialLinkRepository socialLinkRepository;
     private final CustomLinkRepository customLinkRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public User findById(Long userId) {
@@ -28,9 +31,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(
+        return userRepository.findByUrlUsername(username).orElseThrow(
                 () -> new ResourceNotFoundException("User with username - " + username + " not found")
         );
+    }
+
+    @Override
+    public void changePassword(ChangePasswordDto changePasswordDto) {
+        User user = userRepository.findByEmail(changePasswordDto.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User with email doesn't exists"));
+        if (!passwordEncoder.matches(changePasswordDto.getOldPassword(), user.getPassword())){
+            throw new ResourceNotFoundException("Old password is incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
+        userRepository.save(user);
     }
 
 

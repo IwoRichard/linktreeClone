@@ -1,5 +1,6 @@
 package com.richard.linktreeClone.controllers;
 
+import com.richard.linktreeClone.dtos.ChangePasswordDto;
 import com.richard.linktreeClone.dtos.UpdateProfileDto;
 import com.richard.linktreeClone.entities.CustomLink;
 import com.richard.linktreeClone.entities.SocialLink;
@@ -8,6 +9,8 @@ import com.richard.linktreeClone.services.interfaces.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,13 +26,7 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @GetMapping
-    public ResponseEntity<User> findByUsername(@RequestParam(name = "username") String username){
-        User user = userService.findByUsername(username);
-        return new ResponseEntity<>(user, HttpStatus.OK);
-    }
-
-    @PutMapping("/updateprofile/{userId}")
+    @PutMapping("/updateProfile/{userId}")
     public ResponseEntity<User> updateProfile(
             @PathVariable Long userId, @RequestBody UpdateProfileDto updateProfileDto){
 
@@ -37,7 +34,7 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.ACCEPTED);
     }
 
-    @PutMapping("/updatesocial/{userId}")
+    @PutMapping("/updateSocial/{userId}")
     public ResponseEntity<User> updateSocial(
             @PathVariable Long userId, @RequestBody SocialLink socialLink){
 
@@ -45,7 +42,7 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.ACCEPTED);
     }
 
-    @PostMapping("/addcustomlink/{userId}")
+    @PostMapping("/addCustomLink/{userId}")
     public ResponseEntity<CustomLink> addCustomLink(
             @PathVariable Long userId, @RequestBody CustomLink customLink){
 
@@ -53,7 +50,13 @@ public class UserController {
         return new ResponseEntity<>(link, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("{userId}/deletecustomlink/{customLinkId}")
+    @PostMapping("/changePassword")
+    public ResponseEntity<String> changePasswordResponseResponse(@RequestBody ChangePasswordDto changePasswordDto){
+        userService.changePassword(changePasswordDto);
+        return new ResponseEntity<>("Password changed successfully", HttpStatus.OK);
+    }
+
+    @DeleteMapping("{userId}/deleteCustomLink/{customLinkId}")
     public ResponseEntity<String> deleteCustomLink(
             @PathVariable Long userId, @PathVariable Long customLinkId){
 
