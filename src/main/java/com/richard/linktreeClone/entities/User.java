@@ -6,12 +6,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 @Builder
@@ -24,20 +26,23 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String urlUsername;
+
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @JsonIgnore
+    @Column(nullable = false)
     private String password;
 
     private boolean isEnabled;
 
-    @JsonIgnore
-    @Temporal(TemporalType.TIMESTAMP)
-    @CreatedDate
-    private LocalDateTime createdDate;
+    @CreationTimestamp
+    @Column(updatable = false)
+    private Date createdDate;
 
     private String profileTitle;
     private String profileBio;
@@ -72,21 +77,4 @@ public class User implements UserDetails {
     public boolean isCredentialsNonExpired() {
         return true;
     }
-
-
-    @JsonIgnore
-    @Transient
-    private List<GrantedAuthority> authorities;
-    @JsonIgnore
-    @Transient
-    private String username;
-    @JsonIgnore
-    @Transient
-    private boolean accountNonLocked;
-    @JsonIgnore
-    @Transient
-    private boolean accountNonExpired;
-    @JsonIgnore
-    @Transient
-    private boolean credentialsNonExpired;
 }

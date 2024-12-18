@@ -2,6 +2,7 @@ package com.richard.linktreeClone.services;
 
 import com.richard.linktreeClone.dtos.LoginDto;
 import com.richard.linktreeClone.dtos.RegisterDto;
+import com.richard.linktreeClone.dtos.UserResponse;
 import com.richard.linktreeClone.entities.EmailConfirmation;
 import com.richard.linktreeClone.entities.User;
 import com.richard.linktreeClone.exceptions.ResourceNotFoundException;
@@ -21,6 +22,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import static com.richard.linktreeClone.mappers.UserMapper.*;
+
 @Service
 @AllArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -31,7 +34,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     @Override
-    public User registerUser(RegisterDto register) {
+    public UserResponse registerUser(RegisterDto register) {
         if (userRepository.findByUrlUsername(register.getUrlUsername()).isPresent()){
             throw new UserAlreadyExistsException("username already exists");
         }
@@ -41,12 +44,12 @@ public class AuthServiceImpl implements AuthService {
         User user = User.builder()
                 .urlUsername(register.getUrlUsername())
                 .email(register.getEmail())
-                .createdDate(LocalDateTime.now())
                 .isEnabled(false)
                 .password(passwordEncoder.encode(register.getPassword()))
                 .build();
 
         userRepository.save(user);
+        UserResponse response = toUserResponse(user);
 
         EmailConfirmation emailConfirmation = EmailConfirmation.builder()
                 .user(user)
@@ -57,7 +60,7 @@ public class AuthServiceImpl implements AuthService {
         emailConfirmationRepository.save(emailConfirmation);
 
         emailService.sendSimpleMailMessage(user.getUrlUsername(), user.getEmail(), emailConfirmation.getToken());
-        return user;
+        return response;
     }
 
     @Override

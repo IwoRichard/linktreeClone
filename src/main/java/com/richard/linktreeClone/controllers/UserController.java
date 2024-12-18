@@ -2,11 +2,13 @@ package com.richard.linktreeClone.controllers;
 
 import com.richard.linktreeClone.dtos.ChangePasswordDto;
 import com.richard.linktreeClone.dtos.UpdateProfileDto;
+import com.richard.linktreeClone.dtos.UserResponse;
 import com.richard.linktreeClone.entities.CustomLink;
 import com.richard.linktreeClone.entities.SocialLink;
 import com.richard.linktreeClone.entities.User;
 import com.richard.linktreeClone.services.interfaces.UserService;
 import lombok.AllArgsConstructor;
+import org.aspectj.weaver.ast.Var;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,24 +21,24 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{userId}")
-    public ResponseEntity<User> findById(@PathVariable Long userId){
-        User user = userService.findById(userId);
+    public ResponseEntity<UserResponse> findById(@PathVariable Long userId){
+        var user = userService.findById(userId);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PutMapping("/updateProfile/{userId}")
-    public ResponseEntity<User> updateProfile(
+    public ResponseEntity<UserResponse> updateProfile(
             @PathVariable Long userId, @RequestBody UpdateProfileDto updateProfileDto){
 
-        User user = userService.updateProfile(userId, updateProfileDto);
+        var user = userService.updateProfile(userId, updateProfileDto);
         return new ResponseEntity<>(user, HttpStatus.ACCEPTED);
     }
 
     @PutMapping("/updateSocial/{userId}")
-    public ResponseEntity<User> updateSocial(
+    public ResponseEntity<UserResponse> updateSocial(
             @PathVariable Long userId, @RequestBody SocialLink socialLink){
 
-        User user = userService.updateSocialLink(userId, socialLink);
+        var user = userService.updateSocialLink(userId, socialLink);
         return new ResponseEntity<>(user, HttpStatus.ACCEPTED);
     }
 

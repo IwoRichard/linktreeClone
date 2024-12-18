@@ -2,6 +2,7 @@ package com.richard.linktreeClone.services;
 
 import com.richard.linktreeClone.dtos.ChangePasswordDto;
 import com.richard.linktreeClone.dtos.UpdateProfileDto;
+import com.richard.linktreeClone.dtos.UserResponse;
 import com.richard.linktreeClone.entities.CustomLink;
 import com.richard.linktreeClone.entities.SocialLink;
 import com.richard.linktreeClone.entities.User;
@@ -13,6 +14,7 @@ import com.richard.linktreeClone.services.interfaces.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import static com.richard.linktreeClone.mappers.UserMapper.toUserResponse;
 
 @Service
 @AllArgsConstructor
@@ -24,16 +26,19 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public User findById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(
+    public UserResponse findById(Long userId) {
+        User user =  userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("User with ID - " + userId + " not found"));
+
+        return toUserResponse(user);
     }
 
     @Override
-    public User findByUsername(String username) {
-        return userRepository.findByUrlUsername(username).orElseThrow(
+    public UserResponse findByUsername(String username) {
+        User user =  userRepository.findByUrlUsername(username).orElseThrow(
                 () -> new ResourceNotFoundException("User with username - " + username + " not found")
         );
+        return toUserResponse(user);
     }
 
     @Override
@@ -50,19 +55,21 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public User updateProfile(Long userId, UpdateProfileDto updateProfileDto) {
-        User user = findById(userId);
+    public UserResponse updateProfile(Long userId, UpdateProfileDto updateProfileDto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with ID - " + userId + " not found"));
         if (user != null){
             user.setProfileBio(updateProfileDto.getProfileBio());
             user.setProfileTitle(updateProfileDto.getProfileTitle());
             userRepository.save(user);
         }
-        return user;
+        return toUserResponse(user);
     }
 
     @Override
-    public User updateSocialLink(Long userId, SocialLink socialLink) {
-        User user = findById(userId);
+    public UserResponse updateSocialLink(Long userId, SocialLink socialLink) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with ID - " + userId + " not found"));
         if (user != null){
             SocialLink userSocialLink = user.getSocialLink();
             if (userSocialLink != null){
@@ -76,12 +83,13 @@ public class UserServiceImpl implements UserService {
             }
             userRepository.save(user);
         }
-        return user;
+        return toUserResponse(user);
     }
 
     @Override
     public CustomLink addCustomLink(Long userId, CustomLink customLink) {
-        User user = findById(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with ID - " + userId + " not found"));
         if (user != null){
             customLink.setUser(user);
             user.getCustomLinks().add(customLink);
@@ -93,7 +101,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String deleteCustomLink(Long userId, Long customLinkId) {
-        User user = findById(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with ID - " + userId + " not found"));
         if (user != null){
             CustomLink customLink = customLinkRepository.findById(customLinkId).orElseThrow(
                     () -> new ResourceNotFoundException("custom link with ID - " + customLinkId + " not found"));
